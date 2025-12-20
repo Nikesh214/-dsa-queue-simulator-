@@ -128,7 +128,7 @@ int main() {
 
         if (bytes_received <= 0) { 
 
-            printf("Client disconnected.\n"); 
+            printf("Client disconnected. Closing connection safely.\n");
 
             break; 
 
