@@ -47,15 +47,12 @@ int main() {
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0); 
 
-    if (server_fd == INVALID_SOCKET) { 
+    if (server_fd == INVALID_SOCKET) {
+    printf("Socket creation failed. Error code: %d\n", WSAGetLastError());
+    WSACleanup();
+    return 1;
+}
 
-          printf("Socket creation failed. Error code: %d\n", WSAGetLastError());
-
-        WSACleanup(); 
-
-        return 1; 
-
-    } 
 
  
 
