@@ -149,6 +149,7 @@ int main() {
     closesocket(server_fd); 
 
     WSACleanup(); 
+    printf("Receiver shutting down gracefully.\n");
 
     return 0; 
 
