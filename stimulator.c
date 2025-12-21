@@ -105,9 +105,12 @@ bool initializeSDL(SDL_Window **window, SDL_Renderer **renderer) {
 int chequeQueue(void* arg){ 
     SharedData* sharedData = (SharedData*)arg; 
     while (1) { 
-        sharedData->nextLight = 0; 
+        sharedData->nextLight = 0;
+        sharedData->currentLight = sharedData->nextLight; // update current light
         Sleep(5000); 
+
         sharedData->nextLight = 2; 
+        sharedData->currentLight = sharedData->nextLight; // update current light
         Sleep(5000); 
     } 
     return 0; 
