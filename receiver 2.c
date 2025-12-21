@@ -22,6 +22,7 @@
 
 int main() { 
 
+        printf("Socket creation failed. Error code: %d\n", WSAGetLastError());
     WSADATA wsa; 
 
     SOCKET server_fd, client_socket; 
