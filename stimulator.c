@@ -44,6 +44,7 @@ int main() {
     TTF_Font* font = TTF_OpenFont(MAIN_FONT, 24); 
     if (!font) SDL_Log("Failed to load font: %s", TTF_GetError()); 
 
+    // Initial drawing
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); 
     SDL_RenderClear(renderer); 
     drawRoadsAndLane(renderer, font); 
@@ -53,9 +54,17 @@ int main() {
     SDL_Thread* tQueue = SDL_CreateThread(chequeQueue, "QueueThread", &sharedData); 
     SDL_Thread* tReadFile = SDL_CreateThread(readAndParseFile, "ReadFileThread", NULL); 
 
+    // Main loop: redraw screen each frame
     bool running = true; 
     while (running) { 
-        refreshLight(renderer, &sharedData); 
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // clear background
+        SDL_RenderClear(renderer);
+
+        drawRoadsAndLane(renderer, font);
+        refreshLight(renderer, &sharedData);
+
+        SDL_RenderPresent(renderer);
+
         while (SDL_PollEvent(&event))
             if (event.type == SDL_QUIT) running = false; 
 
