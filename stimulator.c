@@ -143,8 +143,13 @@ int readAndParseFile(void* arg) {
 
             char* vehicleNumber = strtok(line, ":");
             char* road = strtok(NULL, ":");
-            if (vehicleNumber && road)
+            if (vehicleNumber && road) {
                 printf("Vehicle: %s, Road: %s\n", vehicleNumber, road);
+
+                // Placeholder: display vehicle on SDL window
+                // Example usage (requires renderer and font to be accessible)
+                // displayText(renderer, font, line, 10, 10);
+            }
             else
                 printf("Invalid format: %s\n", line);
         }
