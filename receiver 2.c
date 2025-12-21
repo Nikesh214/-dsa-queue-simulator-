@@ -22,7 +22,6 @@
 
 int main() { 
 
-        printf("Socket creation failed. Error code: %d\n", WSAGetLastError());
     WSADATA wsa; 
 
     SOCKET server_fd, client_socket; 
@@ -31,7 +30,8 @@ int main() {
 
     int addrlen = sizeof(address); 
 
-    char buffer[BUFFER_SIZE]; 
+    char buffer[BUFFER_SIZE];
+
 
  
 
@@ -39,7 +39,8 @@ int main() {
 
     if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) { 
 
-        printf("WSAStartup failed.\n"); 
+    printf("WSAStartup failed. Error code: %d\n", WSAGetLastError());
+
 
         return 1; 
 
@@ -53,7 +54,7 @@ int main() {
 
     if (server_fd == INVALID_SOCKET) { 
 
-        printf("Socket creation failed.\n"); 
+     printf("Socket creation failed.\n");
 
         WSACleanup(); 
 
@@ -75,7 +76,7 @@ int main() {
 
     if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) == SOCKET_ERROR) { 
 
-        printf("Bind failed.\n"); 
+    printf("Bind failed.\n");
 
         closesocket(server_fd); 
 
@@ -91,7 +92,7 @@ int main() {
 
     if (listen(server_fd, 3) == SOCKET_ERROR) { 
 
-        printf("Listen failed.\n"); 
+    printf("Listen failed.\n");
 
         closesocket(server_fd); 
 
@@ -113,7 +114,7 @@ int main() {
 
     if (client_socket == INVALID_SOCKET) { 
 
-        printf("Accept failed.\n"); 
+    printf("Accept failed.\n");
 
         closesocket(server_fd); 
 
