@@ -24,6 +24,11 @@ char generateLane() {
     return lanes[rand() % 4];
 }
 
+// Function to generate a random speed (1–5)
+int generateSpeed() {
+    return 1 + rand() % 5;
+}
+
 int main() {
     FILE* file = fopen(FILENAME, "a");
     if (!file) {
@@ -37,14 +42,22 @@ int main() {
         char vehicle[9];
         generateVehicleNumber(vehicle);
         char lane = generateLane();
+        int speed = generateSpeed();
 
-        // Write to file
-        fprintf(file, "%s:%c\n", vehicle, lane);
+        // Get current time
+        time_t now = time(NULL);
+        struct tm* t = localtime(&now);
+        char timestamp[20];
+        strftime(timestamp, sizeof(timestamp), "%H:%M:%S", t);
+
+        // Write to file: Vehicle:Lane:Speed:Timestamp
+        fprintf(file, "%s:%c:%d:%s\n", vehicle, lane, speed, timestamp);
         fflush(file); // Ensure data is written immediately
 
-        printf("Generated: %s:%c\n", vehicle, lane); // Print to console
+        // Print to console
+        printf("[%s] Generated: %s | Lane: %c | Speed: %d\n", timestamp, vehicle, lane, speed);
 
-        Sleep(1000); // Wait 1 second (1000 milliseconds)
+        Sleep(1000); // Wait 1 second
     }
 
     fclose(file);
