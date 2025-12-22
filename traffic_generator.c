@@ -30,6 +30,7 @@ int generateSpeed() {
 }
 
 int main() {
+    // Open file in append mode
     FILE* file = fopen(FILENAME, "a");
     if (!file) {
         perror("Error opening file");
@@ -44,7 +45,7 @@ int main() {
         char lane = generateLane();
         int speed = generateSpeed();
 
-        // Get current time
+        // Get current timestamp
         time_t now = time(NULL);
         struct tm* t = localtime(&now);
         char timestamp[20];
@@ -52,10 +53,11 @@ int main() {
 
         // Write to file: Vehicle:Lane:Speed:Timestamp
         fprintf(file, "%s:%c:%d:%s\n", vehicle, lane, speed, timestamp);
-        fflush(file); // Ensure data is written immediately
+        fflush(file); // Ensure immediate writing
 
-        // Print to console
-        printf("[%s] Generated: %s | Lane: %c | Speed: %d\n", timestamp, vehicle, lane, speed);
+        // Print to console for monitoring
+        printf("[%s] Generated: %s | Lane: %c | Speed: %d\n",
+               timestamp, vehicle, lane, speed);
 
         Sleep(1000); // Wait 1 second
     }
