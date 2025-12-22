@@ -4,6 +4,9 @@
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
+#define RECT_WIDTH 100
+#define RECT_HEIGHT 80
+#define SPEED 5
 
 int main(int argc, char* argv[]) {
     (void)argc;
@@ -14,6 +17,10 @@ int main(int argc, char* argv[]) {
     SDL_Event event;
     bool running = true;
 
+    /* Rectangle position */
+    int rectX = 350;
+    int rectY = 260;
+
     /* Initialize SDL2 */
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         SDL_Log("SDL_Init failed: %s", SDL_GetError());
@@ -22,7 +29,7 @@ int main(int argc, char* argv[]) {
 
     /* Create window */
     window = SDL_CreateWindow(
-        "SDL2 Simulator - Press ESC to Quit",
+        "SDL2 Simulator - Arrow keys to move, ESC to Quit",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         WINDOW_WIDTH,
@@ -58,8 +65,27 @@ int main(int argc, char* argv[]) {
 
             /* Keyboard input */
             if (event.type == SDL_KEYDOWN) {
-                if (event.key.keysym.sym == SDLK_ESCAPE)
-                    running = false;
+                switch (event.key.keysym.sym) {
+                    case SDLK_ESCAPE:
+                        running = false;
+                        break;
+                    case SDLK_LEFT:
+                        rectX -= SPEED;
+                        if (rectX < 0) rectX = 0;
+                        break;
+                    case SDLK_RIGHT:
+                        rectX += SPEED;
+                        if (rectX + RECT_WIDTH > WINDOW_WIDTH) rectX = WINDOW_WIDTH - RECT_WIDTH;
+                        break;
+                    case SDLK_UP:
+                        rectY -= SPEED;
+                        if (rectY < 0) rectY = 0;
+                        break;
+                    case SDLK_DOWN:
+                        rectY += SPEED;
+                        if (rectY + RECT_HEIGHT > WINDOW_HEIGHT) rectY = WINDOW_HEIGHT - RECT_HEIGHT;
+                        break;
+                }
             }
         }
 
@@ -67,8 +93,8 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 230, 230, 230, 255);
         SDL_RenderClear(renderer);
 
-        /* Draw moving rectangle */
-        SDL_Rect box = {300, 200, 200, 150};
+        /* Draw rectangle */
+        SDL_Rect box = {rectX, rectY, RECT_WIDTH, RECT_HEIGHT};
         SDL_SetRenderDrawColor(renderer, 0, 120, 255, 255);
         SDL_RenderFillRect(renderer, &box);
 
