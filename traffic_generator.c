@@ -1,11 +1,11 @@
-#include <stdio.h>
+##include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <windows.h> // For Sleep()
 
 #define FILENAME "vehicles.data"
 
-// Function to generate a random vehicle number
+// Function to generate a random vehicle number (8-character)
 void generateVehicleNumber(char* buffer) {
     buffer[0] = 'A' + rand() % 26;
     buffer[1] = 'A' + rand() % 26;
@@ -18,7 +18,7 @@ void generateVehicleNumber(char* buffer) {
     buffer[8] = '\0';
 }
 
-// Function to generate a random lane
+// Function to generate a random lane (A-D)
 char generateLane() {
     char lanes[] = {'A', 'B', 'C', 'D'};
     return lanes[rand() % 4];
@@ -56,7 +56,7 @@ int main() {
         fflush(file); // Ensure immediate writing
 
         // Print to console for monitoring
-        printf("[%s] Generated: %s | Lane: %c | Speed: %d\n",
+        printf("[%s] Vehicle: %s | Lane: %c | Speed: %d\n",
                timestamp, vehicle, lane, speed);
 
         Sleep(1000); // Wait 1 second
