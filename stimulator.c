@@ -16,13 +16,13 @@ int main(int argc, char* argv[]) {
 
     /* Initialize SDL2 */
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        SDL_Log("SDL_Init Error: %s", SDL_GetError());
+        SDL_Log("SDL_Init failed: %s", SDL_GetError());
         return 1;
     }
 
     /* Create window */
     window = SDL_CreateWindow(
-        "SDL2 Example",
+        "SDL2 Simulator - Press ESC to Quit",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         WINDOW_WIDTH,
@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
     );
 
     if (!window) {
-        SDL_Log("Window Error: %s", SDL_GetError());
+        SDL_Log("Window creation failed: %s", SDL_GetError());
         SDL_Quit();
         return 1;
     }
@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     );
 
     if (!renderer) {
-        SDL_Log("Renderer Error: %s", SDL_GetError());
+        SDL_Log("Renderer creation failed: %s", SDL_GetError());
         SDL_DestroyWindow(window);
         SDL_Quit();
         return 1;
@@ -55,16 +55,22 @@ int main(int argc, char* argv[]) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 running = false;
+
+            /* Keyboard input */
+            if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_ESCAPE)
+                    running = false;
+            }
         }
 
-        /* Clear screen (light gray) */
-        SDL_SetRenderDrawColor(renderer, 220, 220, 220, 255);
+        /* Clear background */
+        SDL_SetRenderDrawColor(renderer, 230, 230, 230, 255);
         SDL_RenderClear(renderer);
 
-        /* Draw a blue rectangle */
-        SDL_Rect rect = {300, 200, 200, 150};
+        /* Draw moving rectangle */
+        SDL_Rect box = {300, 200, 200, 150};
         SDL_SetRenderDrawColor(renderer, 0, 120, 255, 255);
-        SDL_RenderFillRect(renderer, &rect);
+        SDL_RenderFillRect(renderer, &box);
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16); /* ~60 FPS */
