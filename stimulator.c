@@ -1,161 +1,79 @@
-#include <SDL2/SDL.h> 
-#include <SDL2/SDL_ttf.h> 
-#include <stdbool.h> 
-#include <stdio.h> 
-#include <string.h> 
-#include <windows.h> // for Sleep 
+#include <SDL2/SDL.h>
+#include <stdbool.h>
+#include <stdio.h>
 
-#define MAX_LINE_LENGTH 20 
-#define MAIN_FONT "C:\\Windows\\Fonts\\arial.ttf" // Change to a valid Windows font 
-#define WINDOW_WIDTH 800 
-#define WINDOW_HEIGHT 800 
-#define SCALE 1 
-#define ROAD_WIDTH 150 
-#define LANE_WIDTH 50 
-#define ARROW_SIZE 15 
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 600
 
-const char* VEHICLE_FILE = "vehicles.data"; 
+int main(int argc, char* argv[]) {
+    (void)argc;
+    (void)argv;
 
-typedef struct{ 
-    int currentLight; 
-    int nextLight; 
-} SharedData; 
+    SDL_Window* window = NULL;
+    SDL_Renderer* renderer = NULL;
+    SDL_Event event;
+    bool running = true;
 
-// Function declarations 
-bool initializeSDL(SDL_Window **window, SDL_Renderer **renderer); 
-void drawRoadsAndLane(SDL_Renderer *renderer, TTF_Font *font); 
-void displayText(SDL_Renderer *renderer, TTF_Font *font, char *text, int x, int y); 
-void drawLightForB(SDL_Renderer* renderer, bool isRed); 
-void refreshLight(SDL_Renderer *renderer, SharedData* sharedData); 
-int chequeQueue(void* arg); 
-int readAndParseFile(void* arg); 
+    /* Initialize SDL2 */
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        SDL_Log("SDL_Init Error: %s", SDL_GetError());
+        return 1;
+    }
 
-int main() { 
-    SDL_Window* window = NULL; 
-    SDL_Renderer* renderer = NULL;     
-    SDL_Event event;     
+    /* Create window */
+    window = SDL_CreateWindow(
+        "SDL2 Example",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        WINDOW_WIDTH,
+        WINDOW_HEIGHT,
+        SDL_WINDOW_SHOWN
+    );
 
-    if (!initializeSDL(&window, &renderer)) { 
-        return -1; 
-    } 
+    if (!window) {
+        SDL_Log("Window Error: %s", SDL_GetError());
+        SDL_Quit();
+        return 1;
+    }
 
-    SharedData sharedData = { 0, 0 }; // 0 => all red 
+    /* Create renderer */
+    renderer = SDL_CreateRenderer(
+        window,
+        -1,
+        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+    );
 
-    TTF_Font* font = TTF_OpenFont(MAIN_FONT, 24); 
-    if (!font) SDL_Log("Failed to load font: %s", TTF_GetError()); 
+    if (!renderer) {
+        SDL_Log("Renderer Error: %s", SDL_GetError());
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
 
-    // Initial drawing
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); 
-    SDL_RenderClear(renderer); 
-    drawRoadsAndLane(renderer, font); 
-    SDL_RenderPresent(renderer); 
+    /* Main loop */
+    while (running) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT)
+                running = false;
+        }
 
-    // Create threads 
-    SDL_Thread* tQueue = SDL_CreateThread(chequeQueue, "QueueThread", &sharedData); 
-    SDL_Thread* tReadFile = SDL_CreateThread(readAndParseFile, "ReadFileThread", NULL); 
-
-    // Main loop: redraw screen each frame
-    bool running = true; 
-    while (running) { 
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // clear background
+        /* Clear screen (light gray) */
+        SDL_SetRenderDrawColor(renderer, 220, 220, 220, 255);
         SDL_RenderClear(renderer);
 
-        drawRoadsAndLane(renderer, font);
-        refreshLight(renderer, &sharedData);
+        /* Draw a blue rectangle */
+        SDL_Rect rect = {300, 200, 200, 150};
+        SDL_SetRenderDrawColor(renderer, 0, 120, 255, 255);
+        SDL_RenderFillRect(renderer, &rect);
 
         SDL_RenderPresent(renderer);
-
-        while (SDL_PollEvent(&event))
-            if (event.type == SDL_QUIT) running = false; 
-
-        SDL_Delay(50); // small delay to avoid 100% CPU 
-    } 
-
-    SDL_Quit(); 
-    return 0; 
-} 
-
-bool initializeSDL(SDL_Window **window, SDL_Renderer **renderer) { 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) { 
-        SDL_Log("Failed to initialize SDL: %s", SDL_GetError()); 
-        return false; 
-    } 
-
-    if (TTF_Init() < 0) { 
-        SDL_Log("SDL_ttf could not initialize! TTF_Error: %s\n", TTF_GetError()); 
-        return false; 
-    } 
-
-    *window = SDL_CreateWindow("Junction Diagram", 
-                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
-                               WINDOW_WIDTH*SCALE, WINDOW_HEIGHT*SCALE, 
-                               SDL_WINDOW_SHOWN); 
-    if (!*window) { 
-        SDL_Log("Failed to create window: %s", SDL_GetError()); 
-        SDL_Quit(); 
-        return false; 
-    } 
-
-    *renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED); 
-    SDL_RenderSetScale(*renderer, SCALE, SCALE); 
-
-    if (!*renderer) { 
-        SDL_Log("Failed to create renderer: %s", SDL_GetError()); 
-        SDL_DestroyWindow(*window); 
-        TTF_Quit(); 
-        SDL_Quit(); 
-        return false; 
-    } 
-
-    return true; 
-} 
-
-// replace sleep(seconds) with Sleep(milliseconds) 
-int chequeQueue(void* arg){ 
-    SharedData* sharedData = (SharedData*)arg; 
-    while (1) { 
-        sharedData->nextLight = 0;
-        sharedData->currentLight = sharedData->nextLight; // update current light
-        Sleep(5000); 
-
-        sharedData->nextLight = 2; 
-        sharedData->currentLight = sharedData->nextLight; // update current light
-        Sleep(5000); 
-    } 
-    return 0; 
-} 
-
-int readAndParseFile(void* arg) {
-    while(1){
-        FILE* file = fopen(VEHICLE_FILE, "r");
-        if (!file) {
-            perror("Error opening file");
-            Sleep(2000);
-            continue;
-        }
-
-        char line[MAX_LINE_LENGTH];
-        while (fgets(line, sizeof(line), file)) {
-            line[strcspn(line, "\n")] = 0;
-
-            // Skip empty lines
-            if (strlen(line) == 0) continue;
-
-            char* vehicleNumber = strtok(line, ":");
-            char* road = strtok(NULL, ":");
-            if (vehicleNumber && road) {
-                printf("Vehicle: %s, Road: %s\n", vehicleNumber, road);
-
-                // Placeholder: display vehicle on SDL window
-                // Example usage (requires renderer and font to be accessible)
-                // displayText(renderer, font, line, 10, 10);
-            }
-            else
-                printf("Invalid format: %s\n", line);
-        }
-        fclose(file);
-
-        Sleep(2000);
+        SDL_Delay(16); /* ~60 FPS */
     }
+
+    /* Cleanup */
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
     return 0;
 }
