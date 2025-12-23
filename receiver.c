@@ -1,156 +1,56 @@
-#include <stdio.h> 
+#include <stdio.h>
+#include <stdlib.h>
+#include <windows.h>
 
-#include <stdlib.h> 
+#define PIPE_NAME "\\\\.\\pipe\\VehicleQueue"
+#define MAX_TEXT 128
 
-#include <string.h> 
+int main() {
+    HANDLE hPipe;
+    char buffer[MAX_TEXT];
+    DWORD bytesRead;
 
-#include <winsock2.h> 
+    printf("Connecting to vehicle pipe...\n");
 
- 
+    /* Try connecting to the named pipe created by the generator */
+    hPipe = CreateFileA(
+        PIPE_NAME,
+        GENERIC_READ,
+        0,
+        NULL,
+        OPEN_EXISTING,
+        0,
+        NULL
+    );
 
-#pragma comment(lib, "ws2_32.lib") 
+    if (hPipe == INVALID_HANDLE_VALUE) {
+        printf("Failed to connect to pipe. Error: %lu\n", GetLastError());
+        return 1;
+    }
 
- 
+    printf("Connected to pipe! Receiving vehicle data...\n");
+    printf("Press Ctrl+C to exit.\n\n");
 
-#define PORT 6000 
+    while (1) {
+        BOOL success = ReadFile(
+            hPipe,
+            buffer,
+            MAX_TEXT - 1,  // Leave space for null terminator
+            &bytesRead,
+            NULL
+        );
 
-#define BUFFER_SIZE 100 
+        if (!success || bytesRead == 0) {
+            printf("Pipe read failed or generator disconnected. Exiting...\n");
+            break;
+        }
 
- 
+        buffer[bytesRead] = '\0'; // Null-terminate string
+        printf("Received: %s\n", buffer);
+    }
 
-int main() { 
+    CloseHandle(hPipe);
+    printf("Pipe closed. Receiver exiting.\n");
 
-    WSADATA wsa; 
-
-    SOCKET server_fd, client_socket; 
-
-    struct sockaddr_in server_addr, client_addr; 
-
-    int client_len = sizeof(client_addr); 
-
-    char buffer[BUFFER_SIZE]; 
-
- 
-
-    // Initialize Winsock 
-
-    if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) { 
-
-        printf("WSAStartup failed.\n"); 
-
-        return 1; 
-
-    } 
-
-
-    // Create socket 
-
-    server_fd = socket(AF_INET, SOCK_STREAM, 0); 
-
-    if (server_fd == INVALID_SOCKET) {
-    printf("Socket creation failed. Error code: %d\n", WSAGetLastError());
-    WSACleanup();
-    return 1;
+    return 0;
 }
-
-
- 
-
-    // Bind socket 
-
-    server_addr.sin_family = AF_INET; 
-
-    server_addr.sin_addr.s_addr = INADDR_ANY; 
-
-    server_addr.sin_port = htons(PORT); 
-
- 
-
-    if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) == SOCKET_ERROR) { 
-
-        printf("Bind failed.\n"); 
-
-        closesocket(server_fd); 
-
-        WSACleanup(); 
-
-        return 1; 
-
-    } 
-
- 
-
-    // Listen for connections 
-
-    if (listen(server_fd, 3) == SOCKET_ERROR) { 
-
-        printf("Listen failed.\n"); 
-
-        closesocket(server_fd); 
-
-        WSACleanup(); 
-
-        return 1; 
-
-    } 
-
- 
-
-    printf("Receiver is running on port %d...\n", PORT); 
-
- 
-
-    // Accept a client 
-
-    client_socket = accept(server_fd, (struct sockaddr*)&client_addr, &client_len); 
-
-    if (client_socket == INVALID_SOCKET) { 
-
-        printf("Accept failed.\n"); 
-
-        closesocket(server_fd); 
-
-        WSACleanup(); 
-
-        return 1; 
-
-    } 
-
- 
-
-    printf("Client connected...\n"); 
-
- 
-
-    while (1) { 
-
-        int bytes_received = recv(client_socket, buffer, BUFFER_SIZE-1, 0); 
-
-        if (bytes_received <= 0) { 
-
-            printf("Client disconnected. Closing connection safely.\n");
-
-            break; 
-
-        } 
-
- 
-
-        buffer[bytes_received] = '\0'; 
-
-        printf("Received: %s\n", buffer); 
-
-    } 
-
- 
-
-    closesocket(client_socket); 
-
-    closesocket(server_fd); 
-
-    WSACleanup(); 
-    printf("Receiver shutting down gracefully.\n");
-
-    return 0; 
-
-} 
