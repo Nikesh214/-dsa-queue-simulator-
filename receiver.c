@@ -1,9 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
+#include <time.h>
 
 #define PIPE_NAME "\\\\.\\pipe\\VehicleQueue"
 #define MAX_TEXT 128
+
+/* Function to get current time as string */
+void getCurrentTime(char* buffer, size_t size) {
+    time_t now = time(NULL);
+    struct tm* t = localtime(&now);
+    strftime(buffer, size, "%H:%M:%S", t);
+}
 
 int main() {
     HANDLE hPipe;
@@ -12,7 +20,6 @@ int main() {
 
     printf("Connecting to vehicle pipe...\n");
 
-    /* Try connecting to the named pipe created by the generator */
     hPipe = CreateFileA(
         PIPE_NAME,
         GENERIC_READ,
@@ -28,14 +35,14 @@ int main() {
         return 1;
     }
 
-    printf("Connected to pipe! Receiving vehicle data...\n");
+    printf("Connected! Receiving vehicle data...\n");
     printf("Press Ctrl+C to exit.\n\n");
 
     while (1) {
         BOOL success = ReadFile(
             hPipe,
             buffer,
-            MAX_TEXT - 1,  // Leave space for null terminator
+            MAX_TEXT - 1,
             &bytesRead,
             NULL
         );
@@ -46,7 +53,11 @@ int main() {
         }
 
         buffer[bytesRead] = '\0'; // Null-terminate string
-        printf("Received: %s\n", buffer);
+
+        char timestamp[20];
+        getCurrentTime(timestamp, sizeof(timestamp));
+
+        printf("[%s] Received: %s\n", timestamp, buffer);
     }
 
     CloseHandle(hPipe);
