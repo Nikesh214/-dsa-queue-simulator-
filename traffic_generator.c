@@ -74,6 +74,7 @@ int main() {
         fprintf(file, "%s:%c:%d:%s\n", vehicle, lane, speed, timestamp);
         fflush(file);
 
+        /* Console output */
         printf("[%s] Vehicle: %s | Lane: %c | Speed: %d\n",
                timestamp, vehicle, lane, speed);
 
