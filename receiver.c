@@ -2,37 +2,53 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <time.h>
-#include <signal.h>
+#include <stdbool.h>
 
 #define PIPE_NAME "\\\\.\\pipe\\VehicleQueue"
 #define MAX_TEXT 128
 
 // Global flag to control program loop
-volatile sig_atomic_t keepRunning = 1;
+volatile BOOL keepRunning = TRUE;
 
-// Ctrl+C handler
-void handleSignal(int signal) {
-    (void)signal; // Avoid unused parameter warning
-    keepRunning = 0;
+/**
+ * Windows console Ctrl+C handler
+ */
+BOOL WINAPI ConsoleHandler(DWORD signal) {
+    if (signal == CTRL_C_EVENT) {
+        keepRunning = FALSE;
+        return TRUE;
+    }
+    return FALSE;
 }
 
-// Function to get current time as HH:MM:SS string
+/**
+ * Get current time as HH:MM:SS string
+ */
 void getCurrentTime(char* buffer, size_t size) {
     time_t now = time(NULL);
     struct tm* t = localtime(&now);
     strftime(buffer, size, "%H:%M:%S", t);
 }
 
-int main() {
-    // Register Ctrl+C handler
-    signal(SIGINT, handleSignal);
-
+int main(void) {
     HANDLE hPipe;
     char buffer[MAX_TEXT];
     DWORD bytesRead;
     int messageCount = 0;
 
-    printf("Connecting to vehicle pipe...\n");
+    // Register Ctrl+C handler
+    SetConsoleCtrlHandler(ConsoleHandler, TRUE);
+
+    printf("Waiting for vehicle pipe...\n");
+
+    // Wait until the named pipe is available
+    while (!WaitNamedPipeA(PIPE_NAME, 2000)) {
+        if (!keepRunning) {
+            printf("\nInterrupted before connecting. Exiting...\n");
+            return 0;
+        }
+        printf("Still waiting for pipe...\n");
+    }
 
     // Open the named pipe for reading
     hPipe = CreateFileA(
@@ -68,18 +84,21 @@ int main() {
             break;
         }
 
-        buffer[bytesRead] = '\0'; // Null-terminate the string
+        buffer[bytesRead] = '\0';
         messageCount++;
 
         char timestamp[20];
         getCurrentTime(timestamp, sizeof(timestamp));
 
-        printf("[%s] Received: %s | Total messages: %d\n", timestamp, buffer, messageCount);
+        printf("[%s] Received: %s | Total messages: %d\n",
+               timestamp, buffer, messageCount);
     }
 
     // Clean up
     CloseHandle(hPipe);
-    printf("\nPipe closed. Receiver exiting. Total messages received: %d\n", messageCount);
+
+    printf("\nPipe closed. Receiver exiting. Total messages received: %d\n",
+           messageCount);
 
     return 0;
 }
