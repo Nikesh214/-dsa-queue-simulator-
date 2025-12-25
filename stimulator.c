@@ -6,7 +6,7 @@
 #define WINDOW_HEIGHT 600
 #define RECT_WIDTH 100
 #define RECT_HEIGHT 80
-#define SPEED 5
+#define SPEED 300.0f   /* pixels per second */
 
 int main(int argc, char* argv[]) {
     (void)argc;
@@ -17,9 +17,14 @@ int main(int argc, char* argv[]) {
     SDL_Event event;
     bool running = true;
 
+    int winWidth = WINDOW_WIDTH;
+    int winHeight = WINDOW_HEIGHT;
+
     /* Rectangle position */
-    int rectX = 350;
-    int rectY = 260;
+    float rectX = 350.0f;
+    float rectY = 260.0f;
+
+    Uint32 lastTick = 0;
 
     /* Initialize SDL2 */
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -34,7 +39,7 @@ int main(int argc, char* argv[]) {
         SDL_WINDOWPOS_CENTERED,
         WINDOW_WIDTH,
         WINDOW_HEIGHT,
-        SDL_WINDOW_SHOWN
+        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
     );
 
     if (!window) {
@@ -57,49 +62,66 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    lastTick = SDL_GetTicks();
+
     /* Main loop */
     while (running) {
+        Uint32 currentTick = SDL_GetTicks();
+        float deltaTime = (currentTick - lastTick) / 1000.0f;
+        lastTick = currentTick;
+
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 running = false;
 
-            /* Keyboard input */
-            if (event.type == SDL_KEYDOWN) {
-                switch (event.key.keysym.sym) {
-                    case SDLK_ESCAPE:
-                        running = false;
-                        break;
-                    case SDLK_LEFT:
-                        rectX -= SPEED;
-                        if (rectX < 0) rectX = 0;
-                        break;
-                    case SDLK_RIGHT:
-                        rectX += SPEED;
-                        if (rectX + RECT_WIDTH > WINDOW_WIDTH) rectX = WINDOW_WIDTH - RECT_WIDTH;
-                        break;
-                    case SDLK_UP:
-                        rectY -= SPEED;
-                        if (rectY < 0) rectY = 0;
-                        break;
-                    case SDLK_DOWN:
-                        rectY += SPEED;
-                        if (rectY + RECT_HEIGHT > WINDOW_HEIGHT) rectY = WINDOW_HEIGHT - RECT_HEIGHT;
-                        break;
-                }
+            if (event.type == SDL_WINDOWEVENT &&
+                event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+                winWidth = event.window.data1;
+                winHeight = event.window.data2;
+            }
+
+            if (event.type == SDL_KEYDOWN &&
+                event.key.keysym.sym == SDLK_ESCAPE) {
+                running = false;
             }
         }
+
+        /* Keyboard state for smooth movement */
+        const Uint8* state = SDL_GetKeyboardState(NULL);
+
+        if (state[SDL_SCANCODE_LEFT])
+            rectX -= SPEED * deltaTime;
+        if (state[SDL_SCANCODE_RIGHT])
+            rectX += SPEED * deltaTime;
+        if (state[SDL_SCANCODE_UP])
+            rectY -= SPEED * deltaTime;
+        if (state[SDL_SCANCODE_DOWN])
+            rectY += SPEED * deltaTime;
+
+        /* Clamp to window */
+        if (rectX < 0) rectX = 0;
+        if (rectY < 0) rectY = 0;
+        if (rectX + RECT_WIDTH > winWidth)
+            rectX = winWidth - RECT_WIDTH;
+        if (rectY + RECT_HEIGHT > winHeight)
+            rectY = winHeight - RECT_HEIGHT;
 
         /* Clear background */
         SDL_SetRenderDrawColor(renderer, 230, 230, 230, 255);
         SDL_RenderClear(renderer);
 
         /* Draw rectangle */
-        SDL_Rect box = {rectX, rectY, RECT_WIDTH, RECT_HEIGHT};
+        SDL_Rect box = {
+            (int)rectX,
+            (int)rectY,
+            RECT_WIDTH,
+            RECT_HEIGHT
+        };
+
         SDL_SetRenderDrawColor(renderer, 0, 120, 255, 255);
         SDL_RenderFillRect(renderer, &box);
 
         SDL_RenderPresent(renderer);
-        SDL_Delay(16); /* ~60 FPS */
     }
 
     /* Cleanup */
