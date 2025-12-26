@@ -10,9 +10,7 @@
 // Global flag to control program loop
 volatile BOOL keepRunning = TRUE;
 
-/**
- * Windows console Ctrl+C handler
- */
+/* Ctrl+C handler */
 BOOL WINAPI ConsoleHandler(DWORD signal) {
     if (signal == CTRL_C_EVENT) {
         keepRunning = FALSE;
@@ -21,9 +19,7 @@ BOOL WINAPI ConsoleHandler(DWORD signal) {
     return FALSE;
 }
 
-/**
- * Get current time as HH:MM:SS string
- */
+/* Get current time as HH:MM:SS string */
 void getCurrentTime(char* buffer, size_t size) {
     time_t now = time(NULL);
     struct tm* t = localtime(&now);
@@ -36,12 +32,12 @@ int main(void) {
     DWORD bytesRead;
     int messageCount = 0;
 
-    // Register Ctrl+C handler
+    /* Register Ctrl+C handler */
     SetConsoleCtrlHandler(ConsoleHandler, TRUE);
 
     printf("Waiting for vehicle pipe...\n");
 
-    // Wait until the named pipe is available
+    /* Wait until the named pipe is available */
     while (!WaitNamedPipeA(PIPE_NAME, 2000)) {
         if (!keepRunning) {
             printf("\nInterrupted before connecting. Exiting...\n");
@@ -50,7 +46,7 @@ int main(void) {
         printf("Still waiting for pipe...\n");
     }
 
-    // Open the named pipe for reading
+    /* Open the named pipe for reading */
     hPipe = CreateFileA(
         PIPE_NAME,
         GENERIC_READ,
@@ -69,7 +65,7 @@ int main(void) {
     printf("Connected! Receiving vehicle data...\n");
     printf("Press Ctrl+C to exit.\n\n");
 
-    // Main loop: read messages until Ctrl+C or pipe disconnect
+    /* Main loop: read messages until Ctrl+C or pipe disconnect */
     while (keepRunning) {
         BOOL success = ReadFile(
             hPipe,
@@ -94,7 +90,7 @@ int main(void) {
                timestamp, buffer, messageCount);
     }
 
-    // Clean up
+    /* Clean up */
     CloseHandle(hPipe);
 
     printf("\nPipe closed. Receiver exiting. Total messages received: %d\n",
