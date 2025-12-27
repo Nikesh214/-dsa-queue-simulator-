@@ -43,9 +43,13 @@ dsa-queue-simulator/
 
 
 ## 🚀 How to Build & Run
+
 ### 🧾 Requirements
-- GCC or compatible C/C++ compiler  
+
+- GCC or compatible C/C++ compiler
+-   
 - Make utility (optional but recommended)
+- 
   This will build the queue and priority queue programs.
 
   
@@ -62,10 +66,15 @@ Once built, run the compiled executables from the bin/ folder:
 USAGE
 
 Each program runs in console mode.
+
 You can perform operations like:
+
 Enqueue new items
+
 Dequeue existing items
+
 View queue contents
+
 Exit simulation
 
 The priority queue version will dequeue based on priority rules.
@@ -74,15 +83,24 @@ The priority queue version will dequeue based on priority rules.
 Technical Documentation (DSA Queue Simulator)
 
 Implemented using array-based queue
+
 Follows FIFO principle
+
 Uses front and rear pointers
+
 Priority queue processes elements by priority
+
 Handles overflow and underflow conditions
+
 Menu-driven console application
+
 Developed in C 
+
 Built using Makefile / GCC
 
 
 ACKNOWLEDGEMENT
+
 SDL2 development team
+
 Traffic simulation research community
