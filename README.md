@@ -38,7 +38,21 @@ dsa-queue-simulator/
 - `include/` – Header files for data structures  
 - `src/` – Source files (queue logic and test drivers)  
 - `bin/` – (Optional) compiled binaries  
-- `demo.gif` – GIF showing queue behavior 
+- `demo.gif` – GIF showing queue behavior
+
+
+  Data structure used
+
+ 
+| Data Structure                                                                                           |Use                                            |
+
+ Queue                                                                                                    | Stores vehicles in FIFO order for traffic simulation |
+
+ Priority Queue                                                                                            | Handles vehicles based on priority              |
+
+Structure (`struct`)                                                                                     | Defines vehicle and queue data                  |
+
+ Array                                                                                                   | Stores queue elements internally                |
 
 
 
