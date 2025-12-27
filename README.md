@@ -5,19 +5,33 @@ This project simulates queue operations using C to demonstrate vehicle flow and 
 
 
 # 📁 Project Structure
+
 dsa-queue-simulator/
+
 ├── include/
+
 │ ├── queue.h
+
 │ └── priority_queue.h
+
 ├── src/
+
 │ ├── queue.c
+
 │ ├── priority_queue.c
+
 │ ├── receiver.c
+
 │ └── receiver2.c
+
 ├── bin/
+
 ├── .gitignore
+
 ├── Makefile
+
 ├── README.md
+
 └── demo.gif
 
 
