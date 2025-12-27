@@ -1,4 +1,5 @@
 https://github.com/user-attachments/assets/ed15872e-2439-448e-bdf7-e99620870b38
+
 This project simulates queue operations using C to demonstrate vehicle flow and waiting behavior in a controlled system.
 
 
