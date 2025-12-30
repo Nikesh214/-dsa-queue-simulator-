@@ -1,120 +1,222 @@
-https://github.com/user-attachments/assets/ed15872e-2439-448e-bdf7-e99620870b38
+          ## TRAFFIC QUEUE SIMULATOR
+  This project simulates queue operations using C to demonstrate vehicle flow and waiting behavior in a controlled system. 
 
-This project simulates queue operations using C to demonstrate vehicle flow and waiting behavior in a controlled system.
-
-
-
-# 📁 Project Structure
-
-dsa-queue-simulator/
-
-├── include/
-
-│ ├── queue.h
-
-│ └── priority_queue.h
-
-├── src/
-
-│ ├── queue.c
-
-│ ├── priority_queue.c
-
-│ ├── receiver.c
-
-│ └── receiver2.c
-
-├── bin/
-
-├── .gitignore
-
-├── Makefile
-
-├── README.md
-
-└── demo.gif
+![Image](https://github.com/user-attachments/assets/ed7f13fa-6c3a-4f2e-a867-d9351b505e5a)
 
 
-- `include/` – Header files for data structures  
-- `src/` – Source files (queue logic and test drivers)  
-- `bin/` – (Optional) compiled binaries  
-- `demo.gif` – GIF showing queue behavior
+## Features
+
+- Realistic intersection layout with lanes and stop lines  
+- Multiple vehicle types:
+  - Regular Cars  
+  - Ambulances  
+  - Police Cars  
+  - Fire Trucks
+    
+ - Intelligent traffic light system:
+  - Normal cycling between directions  
+  - Priority mode for emergency vehicles  
+  - Congestion detection and handling
+    
+- Vehicle behaviors:
+  - Lane following  
+  - Turning (left/right)  
+  - Traffic light obeying  
+  - Vehicle spacing and collision avoidance  
+  - Right-turn-on-red capability
+    
+- Real-time statistics:
+  - Vehicle throughput  
+  - Total vehicles  
+  - Vehicles per minute :contentReference[oaicite:1]{index=1}
+
+## Prerequisites
+To run this simulation, you need:
+
+- GCC or G++ compiler  
+- SDL2 library  
+- MinGW (for Windows) :contentReference[oaicite:2]{index=2}
+
+### Installing SDL2
+
+#### On Windows:
+
+1. Download the SDL2 development libraries from https://libsdl.org  
+2. Extract the contents to your project directory  
+3. Create folders:
+   - `include` (for SDL2 headers)  
+   - `lib` (for SDL2 libs)  
+   - `bin` (for executable output) :contentReference[oaicite:3]{index=3}
+
+## Project Structure
+Traffic-Simulation/
+
+├── include/ # Header files
+
+├── lib/ # Library files
+
+├── src/ # Source files
+
+│ ├── main.c # Main simulation code
+
+│ ├── traffic_simulation.h
+
+│ ├── traffic_simulation.c
+
+│ └── generator.c # Vehicle generator
+
+├── bin/ # Executable output
+
+└── README.md
+
+## Building the Project
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/AayushmanBajracharya/Dsa-Queue-Simulator.git
+   cd Dsa-Queue-Simulator
+   ```
+   
+Compile both programs:
+
+g++ -Iinclude -Llib -o bin/main.exe src/main.c src/traffic_simulation.c -lmingw32 -lSDL2main -lSDL2
+
+g++ -o bin/generator src/generator.c src/traffic_simulation.c -Iinclude -Llib -lmingw32 -lSDL2main -lSDL2
 
 
-  Data structure used
 
+## Running the Simulation
+
+1.Start the vehicle generator:
+
+./bin/generator.exe
+
+2.In another terminal, start the main simulation:
+
+./bin/main.exe
+
+
+
+## How It Works
+
+Program Components
+
+1.Generator (generator.exe):
+
+-Generates vehicles with random properties
+
+-Writes vehicle info to a file
+
+-Spawns new vehicles every 500 ms
+
+
+
+2.Main Simulation (main.exe):
+
+-Reads vehicle data
+
+-Renders intersection & vehicles
+
+-Manages traffic flow & lights
+
+-Processes movement logic
+
+
+
+3.Traffic Management Logic:
+
+-Each lane is implemented using a Queue
+
+-Vehicles are enqueued when they arrive
+
+-Vehicles are dequeued when signals allow movement
+
+-Emergency vehicles bypass normal queues
+
+-Prevents collisions using spacing rules
+
+
+
+
+## Time complexity analysis:
+
+| Operation                        | Data Structure Used | Time Complexity |
+| -------------------------------- | ------------------- | --------------- |
+| Vehicle arrival (enqueue)        | Queue               | O(1)            |
+| Vehicle departure (dequeue)      | Queue               | O(1)            |
+| Emergency vehicle priority check | Queue traversal     | O(n)            |
+| Traffic signal switching         | Conditional logic   | O(1)            |
+| Congestion detection             | Queue traversal     | O(n)            |
+| Vehicle movement update          | Iteration           | O(n)            |
+
+short Explanation:
+
+-O(1) operations execute in constant time regardless of queue size
+
+-O(n) operations depend on the number of vehicles present in the lane
+
+
+
+## Learning Outcomes:
+
+-Practical implementation of Queue data structure
+
+-Understanding traffic management systems
+
+-Real-time simulation handling
+
+-Emergency priority algorithms
+
+-File handling and inter-process coordination
+
+-SDL-based rendering concepts
+
+
+
+ ## Applications:
+
+-Traffic signal simulation
+
+-Smart city traffic management
+
+-Emergency response prioritization
+
+-DSA academic projects
+
+-System simulation studies
+
+
+## Contribution:
+
+1.Fork the repository
+
+2.Create a new branch
+
+git checkout -b feature-name
+
+
+3.Commit your changes
+
+git commit -m "Added new feature"
+
+
+4.Push to the branch
+
+git push origin feature-name
+
+5.Open a Pull Request
+
+
+
+## Acknowledgement:
  
-| Data Structure                                                                                           |Use                                            |
+-SDL2 Development Team
 
- Queue                                                                                                    | Stores vehicles in FIFO order for traffic simulation |
+-Faculty and mentors for guidance
 
- Priority Queue                                                                                            | Handles vehicles based on priority              |
-
-Structure (`struct`)                                                                                     | Defines vehicle and queue data                  |
-
- Array                                                                                                   | Stores queue elements internally                |
+-Online DSA learning resources
 
 
 
-## 🚀 How to Build & Run
 
-### 🧾 Requirements
-
-- GCC or compatible C/C++ compiler
--   
-- Make utility (optional but recommended)
-- 
-  This will build the queue and priority queue programs.
-
-  
-  
-  🏃 Run the Simulator
-
-Once built, run the compiled executables from the bin/ folder:
-
-./bin/queue_simulator
-./bin/priority_queue_simulator
-
-
-
-USAGE
-
-Each program runs in console mode.
-
-You can perform operations like:
-
-Enqueue new items
-
-Dequeue existing items
-
-View queue contents
-
-Exit simulation
-
-The priority queue version will dequeue based on priority rules.
-
-
-Technical Documentation (DSA Queue Simulator)
-
-Implemented using array-based queue
-
-Follows FIFO principle
-
-Uses front and rear pointers
-
-Priority queue processes elements by priority
-
-Handles overflow and underflow conditions
-
-Menu-driven console application
-
-Developed in C 
-
-Built using Makefile / GCC
-
-
-ACKNOWLEDGEMENT
-
-SDL2 development team
-
-Traffic simulation research community
