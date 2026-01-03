@@ -74,7 +74,7 @@ Traffic-Simulation/
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/AayushmanBajracharya/Dsa-Queue-Simulator.git
+   git clone https://github.com/Nikesh214/Dsa-Queue-Simulator.git
    cd Dsa-Queue-Simulator
    ```
    
